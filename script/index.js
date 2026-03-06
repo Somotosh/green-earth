@@ -1,6 +1,13 @@
 const categoriesContainer =document.getElementById('categories-container');
 const treesContainer =document.getElementById("trees-container");
 const loadingSpinner = document.getElementById("loading-spinner")
+const allTreesBtn =document.getElementById("allTreesBtn");
+const treeDetailsModal =document.getElementById("tree-details-modal");
+const modalIMg= document.getElementById("modalImg");
+const modalCategory= document.getElementById("modelCategory");
+const modalDescription= document.getElementById("modelDescription");
+const modalPrice= document.getElementById("modalPrice");
+const modalTaitle= document.getElementById("modalTaitle");
 
 
 async function loeadCategories(){
@@ -10,39 +17,78 @@ async function loeadCategories(){
   const btn = document.createElement("button")
    btn.className="btn btn-outline border-none justify-start w-full";
    btn.textContent =category.category_name;
+   btn.onclick =()=> selectCategoty(category.id,btn)
   categoriesContainer.append(btn)
   });
 
 }
+async function selectCategoty(categoryId,btn) {
+  loadingSpinner.classList.remove("hidden")
+  const allBtns = document.querySelectorAll("#categories-container button,#allTreesBtn");
+  allBtns.forEach(btn =>{
+    btn.classList.remove("bg-green","text-white");
+  
+  })
+  btn.classList.add("bg-green","text-white")
+  const res = await fetch(`https://openapi.programming-hero.com/api/category/${categoryId}`)
+  const data = await res.json()
+  displayTrees(data.plants)
+  loadingSpinner.classList.add("hidden")
+}
+
+allTreesBtn.addEventListener("click",() =>{
+ const allBtns = document.querySelectorAll("#categories-container button,#allTreesBtn");
+  allBtns.forEach(btn =>{
+    btn.classList.remove("bg-green","text-white");
+  
+  })
+   allTreesBtn.classList.add("bg-green","text-white")
+   lodeTrees()
+})
+
 async function lodeTrees() {
   loadingSpinner.classList.remove("hidden")
   const res = await fetch("https://openapi.programming-hero.com/api/plants")
   const data =await res.json()
   displayTrees(data.plants)
 }
-function displayTrees(plants){
-  plants.forEach(trees=>{
-    console.log(trees)
+function displayTrees(trees){
+  treesContainer.innerHTML = "";
+  trees.forEach(tree=>{
     const card = document.createElement("div")
-    card.className="card bg-white shadow-sm p-2"
+    card.className="card h-90 w-full bg-white shadow-sm p-2"
     card.innerHTML=` <figure>
-                          <img src="${trees.image}"
-                          alt="${trees.name}"
-                          class="h-48 w-full object-cover"
+                          <img src="${tree.image}"
+                          alt="${tree.name}"
+                          onclick="openTreeModal(${tree.id})"
+                          class="h-48 w-full object-cover cursor-pointer"
                            />
                      </figure>
                      <div class="card-body p-1 ">
-                         <h2 class="card-title">${trees.name}</h2>
-                         <p class="line-clamp-2 overflow-hidden">${trees.description}</p>
+                         <h2 class="card-title cursor-pointer hover:text-[#4ade80] "onclick="openTreeModal(${tree.id})" >${tree.name}</h2>
+                         <p class="line-clamp-2 overflow-hidden">${tree.description}</p>
                      <div class="flex gap-4">
-                         <p class="badge badge-success text-nowrap">${trees.category}</p>
-                         <h2 class="font-bold text-xl">$${trees.price}</h2>
+                         <p class="badge badge-success text-nowrap">${tree.category}</p>
+                         <h2 class="font-bold text-xl">$${tree.price}</h2>
                      </div>
                         <button class="btn bg-green rounded-full text-white ">Add to Cart</button>
                       </div>`
     treesContainer.appendChild(card)
      loadingSpinner.classList.add("hidden")
   })
+
+}
+
+async function openTreeModal(treeId){
+   const res = await fetch(`https://openapi.programming-hero.com/api/plant/${treeId}`)
+   const data = await res.json()
+   const planDetails = data.plants
+   modalTaitle.textContent =planDetails.name;
+   modalIMg.src =planDetails.image;
+   modalCategory.textContent =planDetails.category;
+   modalDescription.textContent =planDetails.description;
+   modalPrice.textContent =planDetails.price;
+   treeDetailsModal.showModal()
 
 }
 loeadCategories()
