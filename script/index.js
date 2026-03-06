@@ -9,7 +9,8 @@ const modalDescription = document.getElementById("modelDescription");
 const modalPrice = document.getElementById("modalPrice");
 const modalTaitle = document.getElementById("modalTaitle");
 const cardContainer = document.getElementById("cardContainer");
-const totalPrice = document.getElementById("totalPrice")
+const totalPrice = document.getElementById("totalPrice");
+const emptyCardMessege =document.getElementById("emptyCardMessege");
 let card = []
 
 async function loeadCategories() {
@@ -112,6 +113,12 @@ function addToCard(id, name, price) {
 
 function updateCard() {
   cardContainer.innerHTML = "";
+  if(card.length===0){
+    emptyCardMessege.classList.remove("hidden")
+    return
+  }
+  emptyCardMessege.classList.add("hidden")
+  
   let total = 0;
   card.forEach(item => {
     total += item.price * item.quantity
